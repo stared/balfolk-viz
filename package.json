@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "d3-ease": "^3.0.1",
     "vue": "^3.3.4"
   },
   "devDependencies": {
+    "@types/d3-ease": "^3.0.0",
     "@vitejs/plugin-vue": "^4.2.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",

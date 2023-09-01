@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
+import { easeCubic } from "d3-ease";
 
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
@@ -16,8 +17,8 @@ onUnmounted(() => {
   clearInterval(interval);
 });
 
-const radius = ref(30);
-const x = computed(() => 200 + 100 * Math.sin(3 * timeElapsed.value));
+const x = computed(() => 200 + 200 * easeCubic((timeElapsed.value / 2) % 1));
+const radius = computed(() => 30 + 1 * Math.sin(8 * timeElapsed.value));
 </script>
 
 <template>
