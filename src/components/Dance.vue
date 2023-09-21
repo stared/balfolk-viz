@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { easeCubic } from "d3-ease";
+import { periodic } from "../scripts/sequences";
 
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
@@ -17,12 +18,21 @@ onUnmounted(() => {
   clearInterval(interval);
 });
 
-const x = computed(() => 200 + 200 * easeCubic((timeElapsed.value / 2) % 1));
-const radius = computed(() => 30 + 1 * Math.sin(8 * timeElapsed.value));
+const branleX = periodic([
+  (x) => easeCubic(x) - 1,
+  (x) => easeCubic(x),
+  (x) => 1 - easeCubic(x),
+  (x) => -easeCubic(x),
+]);
+
+const branleR = (x: number) => Math.cos(2 * Math.PI * x);
+
+const x = computed(() => 300 + 200 * branleX(timeElapsed.value));
+const radius = computed(() => 20 + 1 * branleR(timeElapsed.value));
 </script>
 
 <template>
-  <svg width="500" height="500">
+  <svg width="800" height="800">
     <circle
       :cx="x"
       :cy="200"
