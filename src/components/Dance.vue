@@ -28,31 +28,23 @@ const branleX = periodic([
 
 const branleR = (x: number) => Math.cos(2 * Math.PI * x);
 
-const branleAngle = periodic([
-  (_x) => 0,
-  (_x) => 0,
-  (_x) => 0,
-  (_x) => 0,
-  //
-  (_x) => 0,
-  (_x) => 0,
-  (_x) => 0,
-  (_x) => 0,
-  //
-  (_x) => 0,
-  (x) => -180 * easeCubicInOut(x),
-  (_x) => -180,
-  (x) => -180 * (1 + easeCubicInOut(x)),
-  //
+const branleAnglePart2 = periodic([
   (_x) => 0,
   (x) => -180 * easeCubicInOut(x),
   (_x) => -180,
   (x) => -180 * (1 + easeCubicInOut(x)),
 ]);
 
+const branleAngle = periodic([
+  (_x) => 0,
+  (_x) => 0,
+  (x) => branleAnglePart2(4 * x),
+  (x) => branleAnglePart2(4 * x),
+]);
+
 const x = computed(() => 300 + 200 * branleX(timeElapsed.value));
 const radius = computed(() => 20 + 1 * branleR(timeElapsed.value));
-const rotation = computed(() => 90 + branleAngle(timeElapsed.value));
+const rotation = computed(() => 90 + branleAngle(timeElapsed.value / 4));
 </script>
 
 <template>
