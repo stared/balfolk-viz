@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import { easeCubic } from "d3-ease";
+import { easeCubic, easeCubicInOut } from "d3-ease";
 import { periodic } from "../scripts/sequences";
 import Dancer from "./Dancer.vue";
 
@@ -28,13 +28,36 @@ const branleX = periodic([
 
 const branleR = (x: number) => Math.cos(2 * Math.PI * x);
 
+const branleAngle = periodic([
+  (_x) => 0,
+  (_x) => 0,
+  (_x) => 0,
+  (_x) => 0,
+  //
+  (_x) => 0,
+  (_x) => 0,
+  (_x) => 0,
+  (_x) => 0,
+  //
+  (_x) => 0,
+  (x) => -180 * easeCubicInOut(x),
+  (_x) => -180,
+  (x) => -180 * (1 + easeCubicInOut(x)),
+  //
+  (_x) => 0,
+  (x) => -180 * easeCubicInOut(x),
+  (_x) => -180,
+  (x) => -180 * (1 + easeCubicInOut(x)),
+]);
+
 const x = computed(() => 300 + 200 * branleX(timeElapsed.value));
 const radius = computed(() => 20 + 1 * branleR(timeElapsed.value));
+const rotation = computed(() => 90 + branleAngle(timeElapsed.value));
 </script>
 
 <template>
   <svg width="800" height="800">
-    <Dancer :x="x" :y="200" :scale="radius" color="red" :rotation="90" />
+    <Dancer :x="x" :y="200" :scale="radius" color="red" :rotation="rotation" />
   </svg>
 </template>
 
