@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { easeCubic } from "d3-ease";
 import { periodic } from "../scripts/sequences";
+import Dancer from "./Dancer.vue";
 
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
@@ -33,14 +34,7 @@ const radius = computed(() => 20 + 1 * branleR(timeElapsed.value));
 
 <template>
   <svg width="800" height="800">
-    <circle
-      :cx="x"
-      :cy="200"
-      :r="radius"
-      stroke="black"
-      stroke-width="3"
-      fill="red"
-    />
+    <Dancer :x="x" :y="200" :scale="radius" color="red" :rotation="90" />
   </svg>
 </template>
 
