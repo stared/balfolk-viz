@@ -9,28 +9,13 @@
 <script setup lang="ts">
 import { computed, defineProps } from "vue";
 
-const props = defineProps({
-  scale: {
-    type: Number,
-    default: 1,
-  },
-  x: {
-    type: Number,
-    default: 0,
-  },
-  y: {
-    type: Number,
-    default: 0,
-  },
-  color: {
-    type: String,
-    default: "#000",
-  },
-  rotation: {
-    type: Number,
-    default: 0,
-  },
-});
+const props = defineProps<{
+  scale: number;
+  x: number;
+  y: number;
+  color: string;
+  rotation: number;
+}>();
 
 // Define the triangle path (equilateral triangle for simplicity)
 const trianglePath = computed(() => {
