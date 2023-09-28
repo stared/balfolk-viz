@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed } from "vue";
 import { easeCubic, easeCubicInOut } from "d3-ease";
 import { periodic } from "../scripts/sequences";
 import Dancer from "./Dancer.vue";
+import { Dance, DancerMovement, DancerPosition } from "../scripts/dance";
 
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
@@ -42,36 +43,41 @@ const branleAngleLeader = periodic([
   (x) => branleAnglePart2Leader(4 * x),
 ]);
 
-const x = computed(() => 300 + 200 * branleX(timeElapsed.value));
-const radius = computed(() => 20 + 1 * branleR(timeElapsed.value));
-const rotationLeader = computed(
-  () => 90 + branleAngleLeader(timeElapsed.value / 4)
-);
-const rotationFollower = computed(
-  () => 270 + branleAngleLeader(timeElapsed.value / 4 + 3.5)
-);
-
+const dance = Dance.empty();
 const n = 10;
-const iterN = Array(n);
+const firstLeader: DancerMovement = (t: number) => ({
+  x: 300 + 200 * branleX(t) - 100,
+  y: 0,
+  r: 20 + branleR(t),
+  angle: 90 + branleAngleLeader(t / 4),
+});
+const firstFollower: DancerMovement = (t: number) => ({
+  x: 300 + 200 * branleX(t) + 100,
+  y: 0,
+  r: 20 + branleR(t),
+  angle: 270 + branleAngleLeader(t / 4 + 3.5),
+});
+const shiftNext = (i: number): DancerPosition => ({
+  x: 0,
+  y: 100 * i,
+  r: 0,
+  angle: 0,
+});
+dance.generateDancers(firstLeader, n, shiftNext, (_) => 0);
+dance.generateDancers(firstFollower, n, shiftNext, (_) => 0);
+
+const dancers = computed(() => dance.dancers.map((d) => d(timeElapsed.value)));
 </script>
 
 <template>
   <svg width="800" height="800">
     <Dancer
-      v-for="(_, i) in iterN"
-      :x="x - 100"
-      :y="100 * i"
-      :scale="radius"
+      v-for="d in dancers"
+      :x="d.x"
+      :y="d.y"
+      :scale="d.r"
       color="red"
-      :rotation="rotationLeader"
-    />
-    <Dancer
-      v-for="(_, i) in iterN"
-      :x="x + 100"
-      :y="100 * i"
-      :scale="radius"
-      color="blue"
-      :rotation="rotationFollower"
+      :rotation="d.angle"
     />
   </svg>
 </template>
