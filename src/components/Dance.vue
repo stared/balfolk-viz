@@ -41,9 +41,3 @@ const dancers = computed(() => dance.render(timeElapsed.value));
     />
   </svg>
 </template>
-
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>
