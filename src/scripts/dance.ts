@@ -1,8 +1,35 @@
-export interface DancerPosition {
+export interface IDancerPosition {
   x: number;
   y: number;
   r: number;
   angle: number;
+}
+
+export class DancerPosition {
+  x: number;
+  y: number;
+  r: number;
+  angle: number;
+  constructor(x: number, y: number, r: number, angle: number) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.angle = angle;
+  }
+
+  static new(dancerPos: IDancerPosition): DancerPosition {
+    const { x, y, r, angle } = dancerPos;
+    return new DancerPosition(x, y, r, angle);
+  }
+
+  shift(shift: DancerPosition): DancerPosition {
+    return DancerPosition.new({
+      x: this.x + shift.x,
+      y: this.y + shift.y,
+      r: this.r + shift.r,
+      angle: this.angle + shift.angle,
+    });
+  }
 }
 
 export type DancerMovement = (t: number) => DancerPosition;
@@ -31,14 +58,8 @@ export class Dance {
     const newDancers: DancerMovement[] = range.map((i) => {
       return (t: number) => {
         const ti = t + shiftTime(i);
-        const pos0 = firstDancer(ti);
         const shifti = shiftPosition(i);
-        return {
-          x: pos0.x + shifti.x,
-          y: pos0.y + shifti.y,
-          r: pos0.r + shifti.r,
-          angle: pos0.angle + shifti.angle,
-        };
+        return firstDancer(ti).shift(shifti);
       };
     });
     this.dancers = this.dancers.concat(newDancers);

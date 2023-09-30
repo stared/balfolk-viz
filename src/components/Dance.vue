@@ -45,24 +45,27 @@ const branleAngleLeader = periodic([
 
 const dance = Dance.empty();
 const n = 10;
-const firstLeader: DancerMovement = (t: number) => ({
-  x: 300 + 200 * branleX(t) - 100,
-  y: 0,
-  r: 20 + branleR(t),
-  angle: 90 + branleAngleLeader(t / 4),
-});
-const firstFollower: DancerMovement = (t: number) => ({
-  x: 300 + 200 * branleX(t) + 100,
-  y: 0,
-  r: 20 + branleR(t),
-  angle: 270 + branleAngleLeader(t / 4 + 3.5),
-});
-const shiftNext = (i: number): DancerPosition => ({
-  x: 0,
-  y: 100 * i,
-  r: 0,
-  angle: 0,
-});
+const firstLeader: DancerMovement = (t: number) =>
+  DancerPosition.new({
+    x: 300 + 200 * branleX(t) - 100,
+    y: 0,
+    r: 20 + branleR(t),
+    angle: 90 + branleAngleLeader(t / 4),
+  });
+const firstFollower: DancerMovement = (t: number) =>
+  DancerPosition.new({
+    x: 300 + 200 * branleX(t) + 100,
+    y: 0,
+    r: 20 + branleR(t),
+    angle: 270 + branleAngleLeader(t / 4 + 3.5),
+  });
+const shiftNext = (i: number): DancerPosition =>
+  DancerPosition.new({
+    x: 0,
+    y: 100 * i,
+    r: 0,
+    angle: 0,
+  });
 dance.generateDancers(firstLeader, n, shiftNext, (_) => 0);
 dance.generateDancers(firstFollower, n, shiftNext, (_) => 0);
 
