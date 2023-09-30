@@ -1,6 +1,6 @@
 import { easeCubic, easeCubicInOut } from "d3-ease";
-import { periodic } from "../sequences";
-import { Dance, DancerMovement, DancerPosition } from "../dance";
+import { periodic } from "@/scripts/sequences";
+import { Dance, DancerMovement, DancerPosition } from "@/scripts/dance";
 
 const branleX = periodic([
   (x) => easeCubic(x) - 1,

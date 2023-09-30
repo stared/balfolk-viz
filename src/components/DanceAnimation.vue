@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import DancerGlyph from "./DancerGlyph.vue";
-import { DancerPosition } from "../scripts/dance";
-import { branleDeNoirmoutier } from "../scripts/dances/branleDeNoirmoutier";
+import DancerGlyph from "@/components/DancerGlyph.vue";
+import { DancerPosition } from "@/scripts/dance";
+import { branleDeNoirmoutier } from "@/scripts/dances/branleDeNoirmoutier";
 
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds

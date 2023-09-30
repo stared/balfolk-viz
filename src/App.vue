@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DanceAnimation from "./components/DanceAnimation.vue";
+import DanceAnimation from "@/components/DanceAnimation.vue";
 </script>
 
 <template>
