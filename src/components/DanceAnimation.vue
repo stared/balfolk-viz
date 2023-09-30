@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from "vue";
-import Dancer from "./Dancer.vue";
+import DancerGlyph from "./DancerGlyph.vue";
 import { DancerPosition } from "../scripts/dance";
 import { branleDeNoirmoutier } from "../scripts/dances/branleDeNoirmoutier";
 
@@ -31,7 +31,7 @@ const dancers = computed(() => dance.render(timeElapsed.value));
 
 <template>
   <svg width="800" height="800">
-    <Dancer
+    <DancerGlyph
       v-for="d in dancers"
       :x="d.x"
       :y="d.y"

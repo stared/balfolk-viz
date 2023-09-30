@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Dance from "./components/Dance.vue";
+import DanceAnimation from "./components/DanceAnimation.vue";
 </script>
 
 <template>
-  <Dance />
+  <DanceAnimation />
 </template>
 
 <style scoped></style>
