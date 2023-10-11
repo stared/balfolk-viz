@@ -7,7 +7,7 @@ import { branleDeNoirmoutier } from "@/scripts/dances/branleDeNoirmoutier";
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
 
-let interval: number;
+let interval: ReturnType<typeof setTimeout>;
 
 onMounted(() => {
   interval = setInterval(() => {
