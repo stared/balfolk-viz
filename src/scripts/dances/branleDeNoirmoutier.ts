@@ -39,7 +39,7 @@ export const branleDeNoirmoutier = (nPairs: number): Dance => {
       x: branleX(t) + 0.5,
       y: 0,
       r: branleR(t),
-      angle: 270 + branleAngleLeader(t / 4 + 3.5),
+      angle: 270 + branleAngleLeader(t / 4 - 0.5),
     });
   const shiftNext = (i: number): DancerPosition =>
     DancerPosition.new({
