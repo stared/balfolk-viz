@@ -73,6 +73,7 @@ export class Dance {
   dancers: DancerMovement[];
   scale: DancerPosition;
   shift: DancerPosition;
+  speed: number;
   constructor(
     dancers: DancerMovement[],
     scale: DancerPosition,
@@ -81,6 +82,7 @@ export class Dance {
     this.dancers = dancers;
     this.scale = scale;
     this.shift = shift;
+    this.speed = 1;
   }
 
   static new(dancers: DancerMovement[]): Dance {
@@ -126,11 +128,25 @@ export class Dance {
   }
 
   /**
+   * Sets dance animation speed
+   * @param speed Speed multiplier (default is 1)
+   * @returns The same object (for chaining).
+   */
+  setSpeed(speed: number) {
+    this.speed = speed;
+    return this;
+  }
+
+  /**
    * Create positions of dancers at a given time, and according to the scale.
    * @param t Time
    * @returns
    */
   render(t: number): DancerPosition[] {
-    return this.dancers.map((d) => d(t).scale(this.scale).shift(this.shift));
+    return this.dancers.map((d) =>
+      d(this.speed * t)
+        .scale(this.scale)
+        .shift(this.shift)
+    );
   }
 }

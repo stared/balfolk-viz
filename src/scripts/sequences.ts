@@ -17,3 +17,11 @@ export const periodic = <T>(arr: Array<(x: number) => T>) => {
     return arr[piece](t % 1);
   };
 };
+
+export const periodicNormalize = <T>(arr: Array<(x: number) => T>) => {
+  return (t: number) => {
+    const n = arr.length;
+    const piece = mod(Math.floor(n * t), n);
+    return arr[piece]((n * t) % 1);
+  };
+};
