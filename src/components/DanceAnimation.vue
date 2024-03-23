@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import DancerGlyph from "@/components/DancerGlyph.vue";
 import { branleDeNoirmoutier } from "@/scripts/dances/branleDeNoirmoutier";
+import { bourreInSix } from "@/scripts/dances/bourreInSix";
+import { chapelloise } from "@/scripts/dances/chapelloise";
 import { DancerPosition } from "@/scripts/dance";
-// import { bourreInSix } from "@/scripts/dances/bourreInSix";
 
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
+const selectedDance = ref("branleDeNoirmoutier");
+const nPairs = 10;
 
 let interval: ReturnType<typeof setTimeout>;
 
@@ -20,26 +23,45 @@ onUnmounted(() => {
   clearInterval(interval);
 });
 
-const nPairs = 10;
-const dance = branleDeNoirmoutier(nPairs);
-// const dance = bourreInSix();
-dance.setScaleShift(
-  DancerPosition.new({ x: 200, y: 200, r: 1, angle: 1 }),
-  DancerPosition.new({ x: 300, y: 0, r: 20, angle: 0 })
-);
+const dances = {
+  branleDeNoirmoutier: branleDeNoirmoutier(nPairs),
+  bourreInSix: bourreInSix(),
+  chapelloise: chapelloise(nPairs),
+};
+const dance = computed(() => {
+  const danceKey = selectedDance.value as keyof typeof dances;
+  const currentDance = dances[danceKey];
+  currentDance.setScaleShift(
+    DancerPosition.new({ x: 200, y: 200, r: 1, angle: 1 }),
+    DancerPosition.new({ x: 300, y: 0, r: 20, angle: 0 })
+  );
+  return currentDance;
+});
 
-const dancers = computed(() => dance.render(timeElapsed.value));
+const dancers = computed(() => dance.value.render(timeElapsed.value));
+
+watch(selectedDance, () => {
+  timeElapsed.value = 0; // Reset time elapsed when dance changes
+});
 </script>
 
 <template>
-  <svg width="800" height="800">
-    <DancerGlyph
-      v-for="d in dancers"
-      :x="d.x"
-      :y="d.y"
-      :scale="d.r"
-      color="red"
-      :rotation="d.angle"
-    />
-  </svg>
+  <div>
+    <select v-model="selectedDance">
+      <option value="branleDeNoirmoutier">Branle de Noirmoutier</option>
+      <option value="bourreInSix">Bourrée in Six</option>
+      <option value="chapelloise">Chapelloise</option>
+    </select>
+    <svg width="800" height="800">
+      <DancerGlyph
+        v-for="(d, index) in dancers"
+        :key="index"
+        :x="d.x"
+        :y="d.y"
+        :scale="d.r"
+        color="red"
+        :rotation="d.angle"
+      />
+    </svg>
+  </div>
 </template>
