@@ -12,43 +12,49 @@ const branleX = periodic([
 const branleR = (x: number) => Math.cos(2 * Math.PI * x);
 
 const branleAnglePart2Leader = periodic([
-  (_x) => 0,
+  () => 0,
   (x) => -180 * easeCubicInOut(x),
-  (_x) => -180,
+  () => -180,
   (x) => -180 * (1 + easeCubicInOut(x)),
 ]);
 
 const branleAngleLeader = periodic([
-  (_x) => 0,
-  (_x) => 0,
+  () => 0,
+  () => 0,
   (x) => branleAnglePart2Leader(4 * x),
   (x) => branleAnglePart2Leader(4 * x),
 ]);
 
+const createDancerPosition = (
+  t: number,
+  xOffset: number,
+  angleBase: number,
+  angleOffset: number
+): DancerPosition => {
+  return DancerPosition.new({
+    x: branleX(t) + xOffset,
+    y: 0,
+    r: branleR(t),
+    angle: angleBase + branleAngleLeader(t / 4 - angleOffset),
+  });
+};
+
 export const branleDeNoirmoutier = (nPairs: number): Dance => {
+  const OFFSET = 0.5;
+  const LEADER_ANGLE_BASE = 90;
+  const FOLLOWER_ANGLE_BASE = 270;
   const dance = Dance.empty();
+
   const firstLeader: DancerMovement = (t: number) =>
-    DancerPosition.new({
-      x: branleX(t) - 0.5,
-      y: 0,
-      r: branleR(t),
-      angle: 90 + branleAngleLeader(t / 4),
-    });
+    createDancerPosition(t, -OFFSET, LEADER_ANGLE_BASE, 0);
   const firstFollower: DancerMovement = (t: number) =>
-    DancerPosition.new({
-      x: branleX(t) + 0.5,
-      y: 0,
-      r: branleR(t),
-      angle: 270 + branleAngleLeader(t / 4 - 0.5),
-    });
+    createDancerPosition(t, OFFSET, FOLLOWER_ANGLE_BASE, 0.5);
+
   const shiftNext = (i: number): DancerPosition =>
-    DancerPosition.new({
-      x: 0,
-      y: 0.5 * i,
-      r: 0,
-      angle: 0,
-    });
+    DancerPosition.new({ x: 0, y: 0.5 * i, r: 0, angle: 0 });
+
   dance.generateDancers(firstLeader, nPairs, shiftNext, (_) => 0);
   dance.generateDancers(firstFollower, nPairs, shiftNext, (_) => 0);
+
   return dance;
 };
