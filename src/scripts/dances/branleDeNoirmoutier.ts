@@ -2,59 +2,106 @@ import { easeCubic, easeCubicInOut } from "d3-ease";
 import { periodic } from "@/scripts/sequences";
 import { Dance, DancerMovement, DancerPosition } from "@/scripts/dance";
 
-const branleX = periodic([
-  (x) => easeCubic(x) - 1,
-  (x) => easeCubic(x),
-  (x) => 1 - easeCubic(x),
-  (x) => -easeCubic(x),
-]);
+class Positions {
+  positions: DancerPosition[];
 
-const branleR = (x: number) => Math.cos(2 * Math.PI * x);
+  constructor(positions: DancerPosition[]) {
+    this.positions = positions;
+  }
 
-const branleAnglePart2Leader = periodic([
-  () => 0,
-  (x) => -180 * easeCubicInOut(x),
-  () => -180,
-  (x) => -180 * (1 + easeCubicInOut(x)),
-]);
+  static new(initialPosition: DancerPosition) {
+    return new Positions([initialPosition]);
+  }
 
-const branleAngleLeader = periodic([
-  () => 0,
-  () => 0,
-  (x) => branleAnglePart2Leader(4 * x),
-  (x) => branleAnglePart2Leader(4 * x),
-]);
+  step({ x = 0, y = 0, angle = 0 }) {
+    const oldPosition = this.positions[this.positions.length - 1];
+    const newPosition = DancerPosition.new({
+      x: oldPosition.x + x,
+      y: oldPosition.y + y,
+      r: oldPosition.r, // for now, let's assume it's constant
+      angle: (oldPosition.angle + angle) % 360,
+    });
+    this.positions.push(newPosition);
+    return this;
+  }
 
-const createDancerPosition = (
-  t: number,
-  xOffset: number,
-  angleBase: number,
-  angleOffset: number
-): DancerPosition => {
-  return DancerPosition.new({
-    x: branleX(t) + xOffset,
-    y: 0,
-    r: branleR(t),
-    angle: angleBase + branleAngleLeader(t / 4 - angleOffset),
-  });
-};
+  diffToBranle(pos1: DancerPosition, pos2: DancerPosition): DancerMovement {
+    return (t: number) =>
+      DancerPosition.new({
+        x: pos1.x + easeCubic(t) * (pos2.x - pos1.x),
+        y: pos1.y + easeCubic(t) * (pos2.y - pos1.y),
+        r: pos1.r * Math.cos(2 * Math.PI * t),
+        angle: pos1.angle + easeCubicInOut(t) * (pos2.angle - pos1.angle),
+      });
+  }
+
+  toMovements() {
+    const movements: DancerMovement[] = [];
+    for (let i = 0; i < this.positions.length; i++) {
+      const pos1 = this.positions[i];
+      const pos2 = this.positions[(i + 1) % this.positions.length];
+      movements.push(this.diffToBranle(pos1, pos2));
+    }
+    return periodic(movements);
+  }
+}
 
 export const branleDeNoirmoutier = (nPairs: number): Dance => {
   const OFFSET = 0.5;
-  const LEADER_ANGLE_BASE = 90;
-  const FOLLOWER_ANGLE_BASE = 270;
   const dance = Dance.empty();
 
-  const firstLeader: DancerMovement = (t: number) =>
-    createDancerPosition(t, -OFFSET, LEADER_ANGLE_BASE, 0);
-  const firstFollower: DancerMovement = (t: number) =>
-    createDancerPosition(t, OFFSET, FOLLOWER_ANGLE_BASE, 0.5);
+  const branleDeNoirmoutierMovementX = Positions.new(
+    DancerPosition.new({ x: 0, y: 0, r: 0, angle: 90 })
+  )
+    .step({ x: 1 })
+    .step({ x: 1 })
+    .step({ x: -1 })
+    .step({ x: -1 })
+    .step({ x: 1 })
+    .step({ x: 1 })
+    .step({ x: -1 })
+    .step({ x: -1 })
+    .step({ x: 1 })
+    .step({ x: 1 })
+    .step({ x: -1, angle: 180 })
+    .step({ x: -1 })
+    .step({ x: 1, angle: 180 })
+    .step({ x: 1 })
+    .step({ x: -1, angle: 180 });
 
-  const shiftNext = (i: number): DancerPosition =>
-    DancerPosition.new({ x: 0, y: 0.5 * i, r: 0, angle: 0 });
+  console.log(branleDeNoirmoutierMovementX.positions);
 
-  dance.generateDancers(firstLeader, nPairs, shiftNext, (_) => 0);
-  dance.generateDancers(firstFollower, nPairs, shiftNext, (_) => 0);
+  const branleDeNoirmoutierMovement =
+    branleDeNoirmoutierMovementX.toMovements();
+
+  const shiftLeaders = (i: number): DancerPosition =>
+    DancerPosition.new({
+      x: -OFFSET,
+      y: 0.5 * i,
+      r: 0,
+      angle: 0,
+    });
+
+  const shiftFollowers = (i: number): DancerPosition =>
+    DancerPosition.new({
+      x: +OFFSET,
+      y: 0.5 * i,
+      r: 0,
+      angle: 180,
+    });
+
+  dance.generateDancers(
+    branleDeNoirmoutierMovement,
+    nPairs,
+    shiftLeaders,
+    (_) => 0
+  );
+  dance.generateDancers(
+    branleDeNoirmoutierMovement,
+    nPairs,
+    shiftFollowers,
+    (_) => 0
+  );
 
   return dance;
 };
