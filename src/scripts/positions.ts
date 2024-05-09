@@ -36,12 +36,14 @@ export default class Positions {
   }
 
   toMovements() {
+    console.log(this.positions);
     const movements: DancerMovement[] = [];
     for (let i = 0; i < this.positions.length; i++) {
       const pos1 = this.positions[i];
       const pos2 = this.positions[(i + 1) % this.positions.length];
       movements.push(this.diffToBranle(pos1, pos2));
     }
+    console.log(movements);
     return periodic(movements);
   }
 }

@@ -5,9 +5,9 @@ export const branleDeNoirmoutier = (nPairs: number): Dance => {
   const dance = Dance.empty();
 
   const firstLeader = Positions.new(
-    DancerPosition.new({ x: -0.5, y: 0, r: 0, angle: 90 })
+    DancerPosition.new({ x: -0.5, y: 0, r: 0, angle: 270 })
   )
-    .step({ x: 1 })
+    .step({ x: 1, angle: 180 })
     .step({ x: 1 })
     .step({ x: -1 })
     .step({ x: -1 })
@@ -25,11 +25,11 @@ export const branleDeNoirmoutier = (nPairs: number): Dance => {
     .toMovements();
 
   const firstFollower = Positions.new(
-    DancerPosition.new({ x: +0.5, y: 0, r: 0, angle: 90 })
+    DancerPosition.new({ x: +0.5, y: 0, r: 0, angle: 270 })
   )
     .step({ x: 1, angle: 180 })
     .step({ x: 1 })
-    .step({ x: -1 })
+    .step({ x: -1, angle: 180 })
     .step({ x: -1 })
     .step({ x: 1 })
     .step({ x: 1 })
