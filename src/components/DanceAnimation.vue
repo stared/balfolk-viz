@@ -32,7 +32,7 @@ const dance = computed(() => {
   const danceKey = selectedDance.value as keyof typeof dances;
   const currentDance = dances[danceKey];
   currentDance.setScaleShift(
-    DancerPosition.new({ x: 200, y: 200, r: 1, angle: 1 }),
+    DancerPosition.new({ x: 100, y: 100, r: 0.5, angle: 1 }),
     DancerPosition.new({ x: 300, y: 0, r: 20, angle: 0 })
   );
   return currentDance;

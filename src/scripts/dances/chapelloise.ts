@@ -1,57 +1,66 @@
-import { easeCubicInOut } from "d3-ease";
-import { periodic, periodicNormalize } from "@/scripts/sequences";
-import { Dance, DancerMovement, DancerPosition } from "@/scripts/dance";
-
-const chapelloiseX = periodic([
-  (x) => easeCubicInOut(x),
-  (x) => 1 - easeCubicInOut(x),
-  (x) => -easeCubicInOut(x),
-  (x) => easeCubicInOut(x) - 1,
-]);
-
-const chapelloiseY = periodic([
-  (_x) => 0,
-  (x) => easeCubicInOut(x),
-  (_x) => 1,
-  (x) => 1 - easeCubicInOut(x),
-]);
-
-const chapelloiseAngle = periodicNormalize([
-  (x) => 90 * x,
-  (x) => 90 + 90 * x,
-  (x) => 180 + 90 * x,
-  (x) => 270 + 90 * x,
-]);
+import Positions from "@/scripts/positions";
+import { Dance, DancerPosition } from "@/scripts/dance";
 
 export const chapelloise = (nPairs: number): Dance => {
   const dance = Dance.empty();
 
-  const firstLeader: DancerMovement = (t: number) =>
-    DancerPosition.new({
-      x: chapelloiseX(t / 4),
-      y: chapelloiseY(t / 4),
-      r: 1,
-      angle: chapelloiseAngle(t / 4),
-    });
+  // we need something position-based for any dances with swapping
+  const firstLeader = Positions.new(
+    DancerPosition.new({ x: -0.5, y: 5, r: 0, angle: 0 })
+  )
+    .step({ y: -1 })
+    .step({ y: -1 })
+    .step({ y: -1, angle: 180 })
+    .step({ y: -1 })
+    .step({ y: 1 })
+    .step({ y: 1 })
+    .step({ y: 1, angle: 180 })
+    .step({ y: 1 })
+    .step({ x: 0.5 })
+    .step({ x: -0.5 })
+    .step({ x: 1 })
+    .step({ x: -0.5 })
+    .step({ x: 0.5 })
+    .step({ x: -1 })
+    .toMovements();
 
-  const firstFollower: DancerMovement = (t: number) =>
-    DancerPosition.new({
-      x: chapelloiseX(t / 4 - 0.5),
-      y: chapelloiseY(t / 4 - 0.5),
-      r: 1,
-      angle: chapelloiseAngle(t / 4 - 0.5),
-    });
+  const firstFollower = Positions.new(
+    DancerPosition.new({ x: 0.5, y: 5, r: 0, angle: 0 })
+  )
+    .step({ y: -1 })
+    .step({ y: -1 })
+    .step({ y: -1, angle: 180 })
+    .step({ y: -1 })
+    .step({ y: 1 })
+    .step({ y: 1 })
+    .step({ y: 1, angle: 180 })
+    .step({ y: 1 })
+    .step({ x: +0.5 })
+    .step({ x: 0.5 })
+    .step({ x: -1 })
+    .step({ x: 0.5 })
+    .step({ x: +0.5 })
+    .step({ x: 1, y: -1 })
+    .toMovements();
 
-  const shiftNext = (i: number): DancerPosition =>
+  const shiftLeaders = (i: number): DancerPosition =>
     DancerPosition.new({
-      x: 2 * (i % 2),
-      y: Math.floor(i / 2),
+      x: 0,
+      y: 0.5 * i,
       r: 0,
       angle: 0,
     });
 
-  dance.generateDancers(firstLeader, nPairs, shiftNext, (_) => 0);
-  dance.generateDancers(firstFollower, nPairs, shiftNext, (_) => 0);
+  const shiftFollowers = (i: number): DancerPosition =>
+    DancerPosition.new({
+      x: 0,
+      y: 0.5 * i,
+      r: 0,
+      angle: 0,
+    });
+
+  dance.generateDancers(firstLeader, nPairs, shiftLeaders, (_) => 0);
+  dance.generateDancers(firstFollower, nPairs, shiftFollowers, (_) => 0);
 
   return dance;
 };
