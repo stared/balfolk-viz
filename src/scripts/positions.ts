@@ -43,7 +43,6 @@ export default class Positions {
       const pos2 = this.positions[(i + 1) % this.positions.length];
       movements.push(this.diffToBranle(pos1, pos2));
     }
-    console.log(movements);
     return periodic(movements);
   }
 }
