@@ -41,7 +41,9 @@ export const chapelloise = (nPairs: number): Dance => {
     .step({ x: 0.5 })
     .step({ x: +0.5 })
     .step({ x: 1, y: -1 })
-    .toMovements();
+    .toMovements((t) =>
+      DancerPosition.new({ x: 0, y: -Math.floor(t / 16), r: 0, angle: 0 })
+    );
 
   const shiftLeaders = (i: number): DancerPosition =>
     DancerPosition.new({
