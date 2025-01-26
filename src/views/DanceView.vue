@@ -11,17 +11,65 @@ const route = useRoute();
 const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
 const nPairs = 10;
+const isPlaying = ref(false); // Start paused
+const isStepPlaying = ref(false); // Track if we're in a step animation
 
-let interval: ReturnType<typeof setTimeout>;
+let interval: ReturnType<typeof setTimeout> | null = null;
+let stepTimeout: ReturnType<typeof setTimeout> | null = null;
 
-onMounted(() => {
+const startAnimation = () => {
+  if (!interval) {
+    interval = setInterval(() => {
+      timeElapsed.value += timeStepMs / 1000;
+    }, timeStepMs);
+  }
+  isPlaying.value = true;
+};
+
+const pauseAnimation = () => {
+  if (interval) {
+    clearInterval(interval);
+    interval = null;
+  }
+  isPlaying.value = false;
+};
+
+const stepForward = () => {
+  if (isStepPlaying.value) return; // Prevent multiple step animations
+
+  isStepPlaying.value = true;
+  const startTime = timeElapsed.value;
+
+  // Start temporary animation
   interval = setInterval(() => {
     timeElapsed.value += timeStepMs / 1000;
   }, timeStepMs);
+
+  // Stop after 1 second
+  stepTimeout = setTimeout(() => {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+    isStepPlaying.value = false;
+  }, 1000);
+};
+
+const resetAnimation = () => {
+  timeElapsed.value = 0;
+};
+
+onMounted(() => {
+  // Don't auto-start animation
 });
 
 onUnmounted(() => {
-  clearInterval(interval);
+  if (interval) {
+    clearInterval(interval);
+  }
+  if (stepTimeout) {
+    clearTimeout(stepTimeout);
+  }
 });
 
 const dances = {
@@ -66,14 +114,62 @@ watch(
         :rotation="d.angle"
       />
     </svg>
+    <div class="controls">
+      <button v-if="!isPlaying" @click="startAnimation" class="control-button">
+        Play
+      </button>
+      <button v-if="isPlaying" @click="pauseAnimation" class="control-button">
+        Pause
+      </button>
+      <button
+        @click="stepForward"
+        class="control-button"
+        :class="{ 'control-button-disabled': isStepPlaying }"
+        :disabled="isStepPlaying"
+      >
+        Step
+      </button>
+      <button @click="resetAnimation" class="control-button">Reset</button>
+      <div>Step: {{ timeElapsed.toFixed(1) }}</div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .dance-view {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   padding: 20px;
+  gap: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+}
+
+.control-button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #42b883;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.control-button:hover:not(:disabled) {
+  background-color: #3aa876;
+}
+
+.control-button:active:not(:disabled) {
+  background-color: #359469;
+}
+
+.control-button-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>
