@@ -69,6 +69,10 @@ export class DancerPosition {
   }
 }
 
+export interface IDancerPositionWithRole extends IDancerPosition {
+  role: Role;
+}
+
 export type DancerMovement = (t: number) => DancerPosition;
 
 export class Dance {
@@ -150,11 +154,12 @@ export class Dance {
    * @param t Time
    * @returns
    */
-  render(t: number): DancerPosition[] {
-    return this.dancers.map((d) =>
-      d(this.speed * t)
+  render(t: number): IDancerPositionWithRole[] {
+    return this.dancers.map((d, i) => ({
+      ...d(this.speed * t)
         .scale(this.scale)
-        .shift(this.shift)
-    );
+        .shift(this.shift),
+      role: this.roles[i],
+    }));
   }
 }
