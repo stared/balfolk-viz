@@ -4,7 +4,7 @@
  * @param m
  * @returns
  */
-const mod = (n: number, m: number): number => ((n % m) + m) % m;
+export const mod = (n: number, m: number): number => ((n % m) + m) % m;
 
 /**
  * Turn an array of R->anything functions in a piecewise periodic sequence.

@@ -1,5 +1,5 @@
 import { easeCubic, easeCubicInOut } from "d3-ease";
-import { periodic } from "@/scripts/sequences";
+import { mod, periodic } from "@/scripts/sequences";
 import { DancerMovement, DancerPosition } from "@/scripts/dance";
 
 export default class Positions {
@@ -35,7 +35,7 @@ export default class Positions {
       });
   }
 
-  toMovements() {
+  toMovements(): DancerMovement {
     console.log(this.positions);
     const movements: DancerMovement[] = [];
     for (let i = 0; i < this.positions.length; i++) {
@@ -44,5 +44,25 @@ export default class Positions {
       movements.push(this.diffToBranle(pos1, pos2));
     }
     return periodic(movements);
+  }
+
+  toMovementsWithShift({ x = 0, y = 0, angle = 0 }): DancerMovement {
+    const movements: DancerMovement[] = [];
+    for (let i = 0; i < this.positions.length; i++) {
+      const pos1 = this.positions[i];
+      const pos2 = this.positions[(i + 1) % this.positions.length];
+      movements.push(this.diffToBranle(pos1, pos2));
+    }
+    return (t: number) => {
+      const piece = mod(Math.floor(t), movements.length);
+      const cycles = mod(Math.floor(t / movements.length), movements.length);
+      const shift = DancerPosition.new({
+        x: x * cycles,
+        y: y * cycles,
+        r: 0,
+        angle: angle * cycles,
+      });
+      return movements[piece](t % 1).shift(shift);
+    };
   }
 }
