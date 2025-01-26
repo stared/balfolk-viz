@@ -2,7 +2,9 @@
   <path
     :d="trianglePath"
     :fill="props.color"
-    :transform="`translate(${props.x},${props.y}) rotate(${props.rotation} 50 50)`"
+    :transform="`translate(${props.x},${props.y}) scale(${
+      props.scale / 50
+    }) rotate(${props.rotation} 50 50)`"
   />
 </template>
 
