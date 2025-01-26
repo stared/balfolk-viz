@@ -8,54 +8,74 @@ import { chapelloise } from "@/scripts/dances/chapelloise";
 import { DancerPosition } from "@/scripts/dance";
 
 const route = useRoute();
-const timeStepMs = 10;
 const timeElapsed = ref(0); // in seconds
 const nPairs = 10;
-const isPlaying = ref(false); // Start paused
-const isStepPlaying = ref(false); // Track if we're in a step animation
+const isPlaying = ref(false);
+const isStepPlaying = ref(false);
 
-let interval: ReturnType<typeof setTimeout> | null = null;
-let stepTimeout: ReturnType<typeof setTimeout> | null = null;
+let animationFrameId: number | null = null;
+let lastTimestamp: number | null = null;
+
+const animate = (timestamp: number) => {
+  if (!lastTimestamp) {
+    lastTimestamp = timestamp;
+  }
+
+  const deltaTime = (timestamp - lastTimestamp) / 1000; // Convert to seconds
+  timeElapsed.value += deltaTime;
+  lastTimestamp = timestamp;
+
+  if (isPlaying.value) {
+    animationFrameId = requestAnimationFrame(animate);
+  }
+};
 
 const startAnimation = () => {
-  if (!interval) {
-    interval = setInterval(() => {
-      timeElapsed.value += timeStepMs / 1000;
-    }, timeStepMs);
+  if (!isPlaying.value) {
+    isPlaying.value = true;
+    lastTimestamp = null;
+    animationFrameId = requestAnimationFrame(animate);
   }
-  isPlaying.value = true;
 };
 
 const pauseAnimation = () => {
-  if (interval) {
-    clearInterval(interval);
-    interval = null;
-  }
   isPlaying.value = false;
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  lastTimestamp = null;
 };
 
 const stepForward = () => {
-  if (isStepPlaying.value) return; // Prevent multiple step animations
+  if (isStepPlaying.value) return;
 
   isStepPlaying.value = true;
-  const startTime = timeElapsed.value;
+  const targetTime = Math.floor(timeElapsed.value + 1);
 
-  // Start temporary animation
-  interval = setInterval(() => {
-    timeElapsed.value += timeStepMs / 1000;
-  }, timeStepMs);
-
-  // Stop after 1 second
-  stepTimeout = setTimeout(() => {
-    if (interval) {
-      clearInterval(interval);
-      interval = null;
+  const stepAnimate = (timestamp: number) => {
+    if (!lastTimestamp) {
+      lastTimestamp = timestamp;
     }
-    isStepPlaying.value = false;
-  }, 1000);
+
+    const deltaTime = (timestamp - lastTimestamp) / 1000;
+    timeElapsed.value += deltaTime;
+    lastTimestamp = timestamp;
+
+    if (timeElapsed.value < targetTime) {
+      animationFrameId = requestAnimationFrame(stepAnimate);
+    } else {
+      timeElapsed.value = targetTime; // Ensure we land exactly on the target
+      isStepPlaying.value = false;
+      lastTimestamp = null;
+    }
+  };
+
+  animationFrameId = requestAnimationFrame(stepAnimate);
 };
 
 const resetAnimation = () => {
+  pauseAnimation();
   timeElapsed.value = 0;
 };
 
@@ -64,11 +84,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (interval) {
-    clearInterval(interval);
-  }
-  if (stepTimeout) {
-    clearTimeout(stepTimeout);
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
   }
 });
 
@@ -115,22 +132,28 @@ watch(
       />
     </svg>
     <div class="controls">
-      <button v-if="!isPlaying" @click="startAnimation" class="control-button">
-        Play
-      </button>
-      <button v-if="isPlaying" @click="pauseAnimation" class="control-button">
-        Pause
-      </button>
-      <button
-        @click="stepForward"
-        class="control-button"
-        :class="{ 'control-button-disabled': isStepPlaying }"
-        :disabled="isStepPlaying"
-      >
-        Step
-      </button>
-      <button @click="resetAnimation" class="control-button">Reset</button>
-      <div>Step: {{ timeElapsed.toFixed(1) }}</div>
+      <div class="buttons">
+        <button
+          v-if="!isPlaying"
+          @click="startAnimation"
+          class="control-button"
+        >
+          Play
+        </button>
+        <button v-if="isPlaying" @click="pauseAnimation" class="control-button">
+          Pause
+        </button>
+        <button
+          @click="stepForward"
+          class="control-button"
+          :class="{ 'control-button-disabled': isStepPlaying }"
+          :disabled="isStepPlaying"
+        >
+          Step
+        </button>
+        <button @click="resetAnimation" class="control-button">Reset</button>
+      </div>
+      <div class="step-counter">Step: {{ timeElapsed.toFixed(1) }}</div>
     </div>
   </div>
 </template>
@@ -146,7 +169,19 @@ watch(
 
 .controls {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 10px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.step-counter {
+  text-align: center;
+  margin-top: 5px;
 }
 
 .control-button {
