@@ -60,8 +60,14 @@ export const branleDeNoirmoutier = (nPairs: number): Dance => {
       angle: 0,
     });
 
-  dance.generateDancers(firstLeader, nPairs, shiftLeaders, (_) => 0);
-  dance.generateDancers(firstFollower, nPairs, shiftFollowers, (_) => 0);
+  dance.generateDancers(firstLeader, "leader", nPairs, shiftLeaders, (_) => 0);
+  dance.generateDancers(
+    firstFollower,
+    "follower",
+    nPairs,
+    shiftFollowers,
+    (_) => 0
+  );
 
   return dance;
 };

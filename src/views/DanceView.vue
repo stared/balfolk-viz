@@ -109,6 +109,18 @@ const dance = computed(() => {
 });
 
 const dancers = computed(() => dance.value.render(timeElapsed.value));
+const dancersWithRoles = computed(() =>
+  dancers.value.map((dancer, index) => ({
+    ...dancer,
+    role: dance.value.roles[index],
+  }))
+);
+
+const roleColors = {
+  leader: "#E62B4F", // bright red
+  follower: "#2B83E6", // bright blue
+  neutral: "#2BE665", // bright green
+} as const;
 
 watch(
   () => route.params.name,
@@ -122,12 +134,12 @@ watch(
   <div class="dance-view">
     <svg width="800" height="800">
       <DancerGlyph
-        v-for="(d, index) in dancers"
+        v-for="(d, index) in dancersWithRoles"
         :key="index"
         :x="d.x"
         :y="d.y"
         :scale="d.r"
-        color="red"
+        :color="roleColors[d.role]"
         :rotation="d.angle"
       />
     </svg>

@@ -79,7 +79,7 @@ export const bourreInSix = (): Dance => {
       r: 0,
       angle: 0,
     });
-  dance.generateDancers(dancer, 6, shiftNext, (i) => i);
+  dance.generateDancers(dancer, "neutral", 6, shiftNext, (i) => i);
   dance.setSpeed(0.4);
   return dance;
 };

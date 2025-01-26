@@ -5,6 +5,8 @@ export interface IDancerPosition {
   angle: number;
 }
 
+export type Role = "leader" | "follower" | "neutral";
+
 export class DancerPosition {
   x: number;
   y: number;
@@ -71,34 +73,39 @@ export type DancerMovement = (t: number) => DancerPosition;
 
 export class Dance {
   dancers: DancerMovement[];
+  roles: Role[];
   scale: DancerPosition;
   shift: DancerPosition;
   speed: number;
   constructor(
     dancers: DancerMovement[],
+    roles: Role[],
     scale: DancerPosition,
     shift: DancerPosition
   ) {
     this.dancers = dancers;
+    this.roles = roles;
     this.scale = scale;
     this.shift = shift;
     this.speed = 1;
   }
 
-  static new(dancers: DancerMovement[]): Dance {
+  static new(dancers: DancerMovement[], roles: Role[]): Dance {
     return new Dance(
       dancers,
+      roles,
       DancerPosition.noScale(),
       DancerPosition.noShift()
     );
   }
 
   static empty(): Dance {
-    return Dance.new([]);
+    return Dance.new([], []);
   }
 
   generateDancers(
     firstDancer: DancerMovement,
+    role: Role,
     n: number,
     shiftPosition: (i: number) => DancerPosition,
     shiftTime: (i: number) => number
@@ -112,6 +119,7 @@ export class Dance {
       };
     });
     this.dancers = this.dancers.concat(newDancers);
+    this.roles = this.roles.concat(Array(n).fill(role));
     return this;
   }
 
