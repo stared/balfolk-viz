@@ -2,14 +2,11 @@
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import DancerGlyph from "@/components/DancerGlyph.vue";
-import { branleDeNoirmoutier } from "@/scripts/dances/branleDeNoirmoutier";
-import { bourreInSix } from "@/scripts/dances/bourreInSix";
-import { chapelloise } from "@/scripts/dances/chapelloise";
+import { danceList } from "@/scripts/danceList";
 import { DancerPosition } from "@/scripts/dance";
 
 const route = useRoute();
 const timeElapsed = ref(0); // in seconds
-const nPairs = 10;
 const isPlaying = ref(false);
 const isStepPlaying = ref(false);
 
@@ -89,14 +86,12 @@ onUnmounted(() => {
   }
 });
 
-const dances = {
-  "branle-de-noirmoutier": branleDeNoirmoutier(nPairs),
-  "bourree-in-six": bourreInSix(),
-  chapelloise: chapelloise(nPairs),
-};
+const dances = Object.fromEntries(
+  danceList.map((dance) => [dance.id, dance.createDance(dance.defaultPairs)])
+);
 
 const dance = computed(() => {
-  const danceKey = route.params.name as keyof typeof dances;
+  const danceKey = route.params.name as string;
   const currentDance = dances[danceKey];
   if (!currentDance) {
     return dances["branle-de-noirmoutier"]; // fallback to default dance
